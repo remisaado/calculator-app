@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, SafeAreaView, View, Text, StatusBar } from "react-native";
+import { StyleSheet, SafeAreaView, View, Text, StatusBar, ToastAndroid, Platform } from "react-native";
 import { Button } from "./components";
 
 export default function App() {
@@ -8,8 +8,22 @@ export default function App() {
   const [operator, setOperator] = useState("");
   const [equalsRepeated, setEqualsRepeated] = useState(false);
 
+  function notifyMessage(message) {
+    if (Platform.OS === "android")
+    {
+      ToastAndroid.show(message, ToastAndroid.SHORT)
+    }
+  }
+
   buttonHandler = (value) => {
-    setCurrentValue(currentValue != "0" ? currentValue + value : value);
+    if (currentValue.length < 15)
+    {
+      setCurrentValue(currentValue != "0" ? currentValue + value : value);
+    }
+    else
+    {
+      notifyMessage("Can't enter more than 15 digits")
+    }
   }
 
   equalHandler = () => {
@@ -53,7 +67,7 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={"#121212"}/>
       <View style={styles.display}>
-        <Text style={styles.displayText}>
+        <Text style={[styles.displayText, currentValue.length > 18 ? styles.xxSmallFont : (currentValue.length > 15 ? styles.xSmallFont : (currentValue.length > 12 ? styles.smallFont : (currentValue.length > 8 ? styles.mediumFont : styles.largeFont)))]}>
           {currentValue}
         </Text>
       </View>
@@ -104,10 +118,25 @@ const styles = StyleSheet.create({
   display: {
     flex: 2.5,
     flexDirection: "column-reverse",
+    paddingBottom: 20,
   },
   displayText: {
-    fontSize: 50,
     color: "#f0f0f0",
-    padding: 20,
+    padding: 5,
+  },
+  xxSmallFont: {
+    fontSize: 25,
+  },
+  xSmallFont: {
+    fontSize: 30,
+  },
+  smallFont: {
+    fontSize: 34,
+  },
+  mediumFont: {
+    fontSize: 42,
+  },
+  largeFont: {
+    fontSize: 50,
   },
 });
