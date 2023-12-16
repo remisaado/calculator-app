@@ -3,11 +3,12 @@ import { StyleSheet, SafeAreaView, View, Text, StatusBar, ToastAndroid, Platform
 import { Button } from "./components";
 
 export default function App() {
-  const [previousValue, setPreviousValue] = useState("0");
+  const [previousValue, setPreviousValue] = useState("");
   const [currentValue, setCurrentValue] = useState("0");
   const [operator, setOperator] = useState("");
   const [equalsRepeated, setEqualsRepeated] = useState(false);
-
+  const [previousInput, setPreviousInput] = useState("");
+  
   function notifyMessage(message) {
     if (Platform.OS === "android")
     {
@@ -15,10 +16,21 @@ export default function App() {
     }
   }
 
-  buttonHandler = (value) => {
+  const buttonHandler = (value) => {
     if (currentValue.length < 15)
     {
-      setCurrentValue(currentValue != "0" ? currentValue + value : value);
+      // Check if value is "." and currentValue already contains a "."
+      // Do nothing if "." is already present
+      if (value === "." && currentValue.includes(".")) return;
+      // If currentValue is empty, add a leading zero before the dot
+      if ((currentValue === "" || currentValue === "0") && value === ".")
+      {
+        setCurrentValue("0.");
+      }
+      else
+      {
+        setCurrentValue(currentValue != "0" ? currentValue + value : value);
+      }
     }
     else
     {
@@ -26,7 +38,7 @@ export default function App() {
     }
   }
 
-  equalHandler = () => {
+  const equalHandler = () => {
     firstVal = parseFloat(equalsRepeated ? currentValue : previousValue);
     secondVal = parseFloat(equalsRepeated ? previousValue : currentValue);
 
@@ -47,56 +59,75 @@ export default function App() {
     
     if (!equalsRepeated) setPreviousValue(currentValue);
 
+    setPreviousInput(!equalsRepeated ? `${previousValue} ${operator} ${currentValue}` : `${currentValue} ${operator} ${previousValue}`);
+    
     setEqualsRepeated(true);
   }
 
-  operatorHandler = (value) => {
-    setOperator(value);
-    setPreviousValue(currentValue);
-    setCurrentValue("0");
+  const operatorHandler = (value) => {
+    if (currentValue !== "")
+    {
+      if (operator !== "")
+      {
+        equalHandler();
+        setEqualsRepeated(false);
+      }
+        setOperator(value);
+        setPreviousValue(currentValue);
+        setCurrentValue("");
+    }
   }
 
-  resetState = () => {
-    setPreviousValue("0");
-    setCurrentValue("0");
+  const resetState = () => {
+    setPreviousValue("");
+    setCurrentValue("");
     setOperator("");
     setEqualsRepeated(false);
+    setPreviousInput("");
   }
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={"#121212"}/>
       <View style={styles.display}>
-        <Text style={[styles.displayText, currentValue.length > 18 ? styles.xxSmallFont : (currentValue.length > 15 ? styles.xSmallFont : (currentValue.length > 12 ? styles.smallFont : (currentValue.length > 8 ? styles.mediumFont : styles.largeFont)))]}>
-          {currentValue}
+        <Text
+          style={[styles.displayText, currentValue.length > 18 ? styles.xxSmallFont : 
+          (currentValue.length > 15 ? styles.xSmallFont : 
+          (currentValue.length > 12 ? styles.smallFont : 
+          (currentValue.length > 8 ? styles.mediumFont : 
+          styles.largeFont)))]}>
+            {currentValue === "" ? previousValue : currentValue}
+        </Text>
+        <Text style={styles.bgDisplayText}>
+          {equalsRepeated ? `${previousInput} =` : (currentValue !== "0" && operator !== "" ? `${previousValue} ${operator} ${currentValue}` : "")}
         </Text>
       </View>
       <View style={styles.row}>
-        <Button text="7" onPress={() => this.buttonHandler("7")}/>
-        <Button text="8" onPress={() => this.buttonHandler("8")}/>
-        <Button text="9" onPress={() => this.buttonHandler("9")}/>
-        <Button text="/" style="operator" onPress={() => this.operatorHandler("/")}/>
+        <Button text="7" onPress={() => buttonHandler("7")}/>
+        <Button text="8" onPress={() => buttonHandler("8")}/>
+        <Button text="9" onPress={() => buttonHandler("9")}/>
+        <Button text="/" style="operator" onPress={() => operatorHandler("/")}/>
       </View>
       <View style={styles.row}>
-        <Button text="4" onPress={() => this.buttonHandler("4")}/>
-        <Button text="5" onPress={() => this.buttonHandler("5")}/>
-        <Button text="6" onPress={() => this.buttonHandler("6")}/>
-        <Button text="x" style="operator" onPress={() => this.operatorHandler("x")}/>
+        <Button text="4" onPress={() => buttonHandler("4")}/>
+        <Button text="5" onPress={() => buttonHandler("5")}/>
+        <Button text="6" onPress={() => buttonHandler("6")}/>
+        <Button text="x" style="operator" onPress={() => operatorHandler("x")}/>
       </View>
       <View style={styles.row}>
-        <Button text="1" onPress={() => this.buttonHandler("1")}/>
-        <Button text="2" onPress={() => this.buttonHandler("2")}/>
-        <Button text="3" onPress={() => this.buttonHandler("3")}/>
-        <Button text="-" style="operator" onPress={() => this.operatorHandler("-")}/>
+        <Button text="1" onPress={() => buttonHandler("1")}/>
+        <Button text="2" onPress={() => buttonHandler("2")}/>
+        <Button text="3" onPress={() => buttonHandler("3")}/>
+        <Button text="-" style="operator" onPress={() => operatorHandler("-")}/>
       </View>
       <View style={styles.row}>
-        <Button text="C" style="clear" onPress={() => this.resetState()}/>
-        <Button text="0" onPress={() => this.buttonHandler("0")}/>
-        <Button text="." onPress={() => this.buttonHandler(".")}/>
-        <Button text="+" style="operator" onPress={() => this.operatorHandler("+")}/>
+        <Button text="C" style="clear" onPress={() => resetState()}/>
+        <Button text="0" onPress={() => buttonHandler("0")}/>
+        <Button text="." onPress={() => buttonHandler(".")}/>
+        <Button text="+" style="operator" onPress={() => operatorHandler("+")}/>
       </View>
       <View style={styles.row}>
-        <Button text="=" style="equals" onPress={() => this.equalHandler("=")}/>
+        <Button text="=" style="equals" onPress={() => equalHandler("=")}/>
       </View>
     </SafeAreaView>
   );
@@ -121,8 +152,14 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   displayText: {
+    textAlign: "center",
     color: "#f0f0f0",
     padding: 5,
+  },
+  bgDisplayText: {
+    textAlign: "center",
+    color: "#dcdcdc",
+    fontSize: 20,
   },
   xxSmallFont: {
     fontSize: 25,
