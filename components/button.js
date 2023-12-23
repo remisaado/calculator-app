@@ -1,12 +1,23 @@
 import { StyleSheet, Dimensions, Pressable, Text } from "react-native";
 
-const Button = ({text, style, onPress}) => {
+const Button = ({text, style, onPress, disabled}) => {
     return (
         <Pressable
-            style={[styles.button, style === "operator" ? styles.operator : (style === "equals" ? styles.equals : (style === "clear" ? styles.clear : styles.number))]}
+            style={[styles.button,
+                style === "operator" ? styles.operator :
+                (style === "equals" ? styles.equals :
+                (style === "clear" ? styles.clear :
+                styles.number)),
+                disabled ? styles.disabled : null]}
+            disabled={disabled}
             onPress={onPress}>
-            <Text style={[styles.buttonText, style === "operator" ? styles.operatorText : (style === "equals" ? styles.equalsText : (style === "clear" ? styles.clearText : styles.numberText))]}>
-                {text}
+            <Text style={[styles.buttonText,
+                style === "operator" ? styles.operatorText :
+                (style === "equals" ? styles.equalsText :
+                (style === "clear" ? styles.clearText :
+                styles.numberText)),
+                disabled ? styles.disabledText : null]}>
+                    {text}
             </Text>
         </Pressable>
     )
@@ -23,17 +34,23 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         borderWidth: 0.25,
         borderColor: "white",
-        borderRadius: 8,
+        borderRadius: 4,
         margin: 2,
       },
     buttonText: {
         fontSize: 32,
     },
+    disabled: {
+        borderColor: "rgba(120, 120, 120, 0.5)",
+    },
+    disabledText: {
+        color: "rgba(120, 120, 120, 0.5)",
+    },
     operator: {
-        borderColor: "#e69600",
+        borderColor: "#00afff",
     },
     operatorText: {
-        color: "#e69600",
+        color: "#00afff",
     },
     equals: {
         borderColor: "#00aa00",
