@@ -3,12 +3,13 @@ import { StyleSheet, Dimensions, Pressable, Text } from "react-native";
 const Button = ({text, style, onPress, disabled}) => {
     return (
         <Pressable
-            style={[styles.button,
+            style={({pressed}) => [styles.button,
                 style === "operator" ? styles.operator :
                 (style === "equals" ? styles.equals :
                 (style === "clear" ? styles.clear :
                 styles.number)),
-                disabled ? styles.disabled : null]}
+                disabled ? styles.disabled : null,
+                pressed ? styles.pressedStyle : null]}
             disabled={disabled}
             onPress={onPress}>
             <Text style={[styles.buttonText,
@@ -32,13 +33,15 @@ const styles = StyleSheet.create({
         width: buttonWidth,
         alignItems: "center",
         justifyContent: "center",
-        borderWidth: 0.25,
-        borderColor: "white",
+        backgroundColor: "#101010",
         borderRadius: 4,
-        margin: 2,
+        margin: 1,
       },
     buttonText: {
         fontSize: 32,
+    },
+    pressedStyle: {
+        backgroundColor: "#222222",
     },
     disabled: {
         borderColor: "rgba(120, 120, 120, 0.5)",
@@ -47,28 +50,29 @@ const styles = StyleSheet.create({
         color: "rgba(120, 120, 120, 0.5)",
     },
     operator: {
-        borderColor: "#00afff",
+        borderColor: "#007FBF",
     },
     operatorText: {
-        color: "#00afff",
+        color: "#007FBF",
     },
     equals: {
-        borderColor: "#00aa00",
+        borderColor: "#008A00",
     },
     equalsText: {
-        color: "#00aa00",
+        color: "#008A00",
     },
     clear: {
-        borderColor: "#aa0000",
+        borderColor: "#9A0000",
     },
     clearText: {
-        color: "#aa0000",
+        color: "#9A0000",
     },
     number: {
-        borderColor: "#f0f0f0",
+        borderWidth: 0,
+        backgroundColor: "#181818",
     },
     numberText: {
-        color: "#f0f0f0",
+        color: "#F0F0F0",
     },
 })
 
